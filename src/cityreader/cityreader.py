@@ -1,5 +1,14 @@
+import csv
+
+
 # Create a class to hold a city location. Call the class "City". It should have
 # fields for name, lat and lon (representing latitude and longitude).
+
+class City:
+  def __init__(self, name, lat, lon):
+    self.name = name
+    self.lat = lat
+    self.lon = lon
 
 
 # We have a collection of US cities with population over 750,000 stored in the
@@ -16,19 +25,21 @@
 # should not be loaded into a City object.
 cities = []
 
+
 def cityreader(cities=[]):
-  # TODO Implement the functionality to read from the 'cities.csv' file
+  # the functionality to read from the 'cities.csv' file
   # Ensure that the lat and lon valuse are all floats
   # For each city record, create a new City instance and add it to the 
   # `cities` list
-    
-    return cities
+  with open('cities.csv') as f:
+    cities = [City(row[0], float(row[3]), float(row[4])) for idx, row in enumerate(csv.reader(f)) if idx > 0]
+  return cities
 
-cityreader(cities)
+cities = cityreader()
 
 # Print the list of cities (name, lat, lon), 1 record per line.
 for c in cities:
-    print(c)
+    print(f"{c.name},{c.lat},{c.lon}")
 
 # STRETCH GOAL!
 #
@@ -64,8 +75,34 @@ for c in cities:
 def cityreader_stretch(lat1, lon1, lat2, lon2, cities=[]):
   # within will hold the cities that fall within the specified region
   within = []
-  
+  # normalize for top of rectangle
+  top = 0
+  bottom = 0
+  lleft = 0 
+  lright = 0
+  if lat1 > lat2:
+      top = lat1
+      tright = lon1
+      bottom = lat2
+      lleft = lon2
+  else:
+      top = lat2
+      tright = lon2
+      bottom = lat1
+      lleft = lon1
+  for city in cities:
+    if float(city.lat) < top and float(city.lat) > bottom and float(city.lon) < tright and float(city.lon) > lleft:
+      within.append(city)
+      print(f"found {city.name}")
   # Go through each city and check to see if it falls within 
   # the specified coordinates.
 
   return within
+
+user_input = str(input("Please enter Lat1, Lng1, Lat2, Lng2\n")).lower() 
+if user_input is not None:
+  if len(user_input.split(",")) != 4:
+      print("Please input the Lat1, Lng1, Lat2, Lng2 in the correct format: 36.2288,-115.260,36.2287,-115.261 for example")
+  else:
+    within = cityreader_stretch(float(user_input.split(",")[0]),float(user_input.split(",")[1]),float(user_input.split(",")[2]),float(user_input.split(",")[3]),cities)
+    print(within)
